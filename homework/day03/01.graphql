@@ -1,0 +1,132 @@
+01
+query {
+  fetchProfile(name: "철수") {
+    age
+  }
+}
+02
+query {
+  fetchProfile(name: "영희") {
+    school
+  }
+}
+03
+query {
+  fetchBoard(number: 3) {
+    contents
+    createdAt
+  }
+}
+04
+mutation {
+  createProfile(name: "박민", age: 100, school: "다람쥐초등학교") {
+    _id
+    number
+  	message
+  }
+}
+05
+mutation {
+  createBoard(writer: "박민", title: "hello", contents:"world") {
+    _id
+    number
+    message
+  }
+}
+06
+query{
+  fetchProfile(name: "박민") {
+    number
+    name
+    age
+    school
+  }
+}
+07
+query {
+  fetchBoard(number: 12) {
+    number
+    writer
+    title
+    contents
+  }
+}
+08
+mutation {
+  updateProfile(name: "박민", school: "가좌초") {
+    number
+  }
+}
+09
+mutation {
+  updateBoard(number: 150, title: "hi", contents: "no!") {
+    message
+  }
+}
+10
+mutation {
+  createProfile(name: "짱구", age: 7, school: "떡잎유치원") {
+    message
+  }
+}
+11
+mutation {
+  deleteProfile(name:"짱구") {
+    message
+  }
+}
+12
+mutation {
+  createProduct(seller: "박민", createProductInput: {
+    name: "노트북"
+		detail: "최신형!!"
+    price: 10000
+  }) {
+    message
+    _id
+  }
+}
+13
+mutation {
+  updateProduct(productId: "226f9c40-413d-4cfd-aa8f-55fd23348db3", updateProductInput:{
+    price: 10500
+  }) {
+    message
+  }
+}
+14
+query {
+  fetchProduct(productId: "226f9c40-413d-4cfd-aa8f-55fd23348db3") {
+    price
+  }
+}
+15
+mutation {
+  deleteProduct(productId: "226f9c40-413d-4cfd-aa8f-55fd23348db3") {
+    message
+  }
+}
+16
+query {
+  fetchProduct(productId: "226f9c40-413d-4cfd-aa8f-55fd23348db3") {
+    price
+  }
+}
+17
+query {
+  fetchBoards(page:2) {
+    writer
+    title
+    contents
+  }
+}
+18
+
+19
+query {
+  fetchProfilesCount 
+}
+20
+query {
+  fetchBoardsCount
+}

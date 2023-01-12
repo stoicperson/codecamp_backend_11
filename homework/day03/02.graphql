@@ -1,0 +1,97 @@
+01
+mutation {
+  createBoard(createBoardInput: {
+    writer:"박민"
+    title: "hihi"
+    contents: "hohoho"
+    password:"1q2w3e"
+  }) {
+    _id
+  }
+}
+02
+title: "hihi", contents:"hohoho"
+03
+mutation {
+  likeBoard(boardId: "63bea45112e1f5002822955c")
+}
+04
+mutation {
+  dislikeBoard(boardId: "63bea45112e1f5002822955c")
+}
+05
+query {
+  fetchBoard(boardId: "63bea45112e1f5002822955c") {
+    likeCount
+    dislikeCount
+  }
+}
+06
+query {
+ fetchBoardsCount(startDate: "2022-01-01", endDate: "2023-12-12")
+}
+07
+mutation {
+  updateBoard(updateBoardInput: {
+    title: "aaa"
+  }, password: "1q2w3e", boardId: "63bea45112e1f5002822955c") {
+    title
+  }
+}
+08
+query {
+  fetchBoards(search:"aaa") {
+    writer
+    title
+  }
+}
+09
+mutation {
+  createBoardComment(createBoardCommentInput:{
+    writer: "박민"
+    password: "111"
+    contents: "ㅠㅠ"
+    rating: 4.5
+  }, boardId: "63bea45112e1f5002822955c") {
+    writer
+  }
+}
+10
+mutation {
+  updateBoardComment(password: "111", boardCommentId: "63bea63212e1f50028229563",updateBoardCommentInput: {
+    contents: "a"
+     rating:1.0
+  }) {
+    contents
+    rating
+  }
+}
+11
+mutation {
+  deleteBoardComment(password: "111", boardCommentId: "63bea63212e1f50028229563")
+}
+12
+query {
+ fetchBoardComments(boardId:"63bea45112e1f5002822955c", page: 1) {
+  	writer
+  	contents
+	}
+}
+13
+query {
+  fetchBoardsOfTheBest{
+    writer
+    title
+   	likeCount
+  }
+}
+14
+mutation {
+  createUser(createUserInput:{
+    email: "aaa@aaa.com"
+    name: "min"
+    password:"1q2w3e"
+  }) {
+  name
+}
+}
