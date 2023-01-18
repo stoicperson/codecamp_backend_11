@@ -10,12 +10,13 @@ FROM node:14
 
 # 2. 내 컴퓨터에 있는 폴더나 파일을 도커 컴퓨터 안으로 복사하기
 # RUN mkdir myfoler  => 아래에서 COPY할 때, 파일이 없으면 자동으로 만들어주므로 굳이 필요없음
-COPY . /myfolder/
-
+COPY ./package.json /myfolder/
+COPY ./yarn.lock /myfolder/
 # RUN cd ./myfolder/
 WORKDIR /myfolder/
-
 RUN yarn
+
+COPY . /myfolder/
 
 # 3. 도커안에서 index.js 실행시키기
 CMD yarn dev
