@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  my-express:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./index.js:/min/index.js
+    ports:
+      - "3000:3000"
+  my-mongodb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
