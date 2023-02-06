@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  my-nest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src:/min/src
+    ports:
+      - 3000:4000
+    env_file:
+      - ./.env.docker
+  my-sql:
+    # platform: linux/x86_64
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'myproject'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3306:3306
