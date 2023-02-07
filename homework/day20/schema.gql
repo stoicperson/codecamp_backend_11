@@ -1,0 +1,102 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Airline {
+  id: String!
+  airline_name: String!
+  airline_code: String!
+}
+
+type Airport {
+  id: String!
+  airport_name: String!
+  airport_code: String!
+  country: String!
+  city: String!
+}
+
+type Ticket {
+  id: String!
+  arriving_time: DateTime!
+  departing_time: DateTime!
+  arriving_gate: String!
+  departing_gate: String!
+  ticket_num: String!
+  ticket_image: String!
+  created_at: DateTime!
+  travel_class: String!
+  limit_count: Int!
+  price: Int!
+  departing_airport: Airport!
+  arriving_airport: Airport!
+  airline: Airline!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Passenger {
+  id: String!
+  ko_name: String!
+  en_first_name: String!
+  en_last_name: String!
+  birth_date: String!
+  email: String!
+  mobile: String!
+  gender: String!
+}
+
+type User {
+  id: String!
+  ko_name: String!
+  en_first_name: String!
+  en_last_name: String!
+  birth_date: String!
+  email: String!
+  mobile: String!
+  pwd: String!
+  gender: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type Query {
+  fetchTickets: [Ticket!]!
+  fetchTicket(ticketId: String!): Ticket!
+}
+
+type Mutation {
+  createTicket(createTicketInput: CreateTicketInput!): Ticket!
+  updateTicket(ticketId: String!, updateTicketInput: UpdateTicketInput!): Ticket!
+}
+
+input CreateTicketInput {
+  id: String!
+  arriving_time: DateTime!
+  departing_time: DateTime!
+  arriving_gate: String!
+  departing_gate: String!
+  ticket_num: String!
+  ticket_image: String!
+  created_at: DateTime!
+  travel_class: String!
+  limit_count: Int!
+  price: Int!
+}
+
+input UpdateTicketInput {
+  id: String
+  arriving_time: DateTime
+  departing_time: DateTime
+  arriving_gate: String
+  departing_gate: String
+  ticket_num: String
+  ticket_image: String
+  created_at: DateTime
+  travel_class: String
+  limit_count: Int
+  price: Int
+}
