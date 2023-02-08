@@ -1,14 +1,8 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ProductsSaleslocationsService } from '../productsSaleslocations/productsSaleslocations.service';
 import { ProductsTagsService } from '../productsTags/products.service';
-import { UpdateProductInput } from './dto/update-product.input';
 import { Product } from './entities/product.entity';
 import {
   IProductsServiceCheckSoldout,
@@ -69,14 +63,13 @@ export class ProductsService {
     // productTags가 ["#전자제품", "#영등포", "#컴퓨터"]와 같은 패턴이라고 가정
     const tagNames = productTags.map((el) => el.replace('#', ''));
     const prevTags = await this.productsTagsService.findByNames({ tagNames });
-    const { productSaleslocation, productCategoryId, productTags, ...product } =
-      createProductInput;
-    (el) => {
+
+    const temp = [];
+    tagNames.forEach((el) => {
       const isExists = prevTags.find((prevEl) => el === prevEl.name);
       if (!isExists) temp.push({ name: el });
-    };
-    const temp = [];
-    const newTags = await this.productsTagsService.bulkInsert(temp); //bulk-inser는 save()로 불가능
+    });
+    const newTags = await this.productsTagsService.bulkInsert({ names: temp }); //bulk-inser는 save()로 불가능
 
     const tags = [...prevTags, ...newTags.identifiers];
 
@@ -109,11 +102,23 @@ export class ProductsService {
     // 기존 있는 내용을 재사용하여, 로직을 통일하자!!
     const product = await this.findOne({ productId });
 
-    const { productTags, ...rest } = updateProductInput;
+    const { productTags, ...updatedProduct } = updateProductInput;
 
     // 검증은 서비스에서 하자!!
     this.checkSoldout({ product });
 
+    // 태그생성
+    const tagNames = productTags.map((el) => el.replace('#', ''));
+    const prevTags = await this.productsTagsService.findByNames({ tagNames });
+
+    const temp = [];
+    tagNames.forEach((el) => {
+      const isExists = prevTags.find((prevEl) => el === prevEl.name);
+      if (!isExists) temp.push({ name: el });
+    });
+    const newTags = await this.productsTagsService.bulkInsert({ names: temp }); //bulk-inser는 save()로 불가능
+
+    const tags = [...prevTags, ...newTags.identifiers];
     // this.productsRepository.create(); // DB 접속이랑 관련 없음. 등록을 위해서 빈 껍데기 객체 만들기 위함
     // this.productsRepository.insert(); // 결과를 객체로 못 돌려 받는 등록 방법
     // this.productsRepository.update(); // 결과를 객체로 못 돌려 받는 수정 방법
@@ -122,8 +127,10 @@ export class ProductsService {
     // 숙제 - 2) 아래 에러 고쳐보기
     const result = this.productsRepository.save({
       ...product, // 수정 후, 수정되지 않은 다른 결과값까지 모두 객체로 돌려 받고 싶을 때
-      ...updateProductInput,
+      ...updatedProduct,
+      productTags: tags,
     });
+
     return result;
   }
 
