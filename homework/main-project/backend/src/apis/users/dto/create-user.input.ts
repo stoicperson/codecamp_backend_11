@@ -4,7 +4,7 @@ import { User } from '../entities/user.entity';
 @InputType()
 export class CreateUserInput extends OmitType(
   User,
-  ['id', 'createdAt', 'updatedAt', 'deleteAt'],
+  ['id', 'createdAt', 'updatedAt', 'deleteAt', 'provider', 'providerId'],
   InputType,
 ) {
   @Field(() => String)

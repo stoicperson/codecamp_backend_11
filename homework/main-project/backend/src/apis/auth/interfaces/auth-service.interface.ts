@@ -1,5 +1,7 @@
+import { Request, Response } from 'express';
 import { User } from 'src/apis/users/entities/user.entity';
 import { IAuthUser, IContext } from 'src/commons/interfaces/context';
+import { IOauthUser } from 'src/commons/interfaces/oauthUser';
 
 export interface IAuthServiceLogin {
   email: string;
@@ -13,9 +15,15 @@ export interface IAuthServiceAccessToken {
 
 export interface IAuthServiceSetRefreshToken {
   user: User;
-  context: IContext;
+  res: Response;
 }
 
 export interface IAuthServiceRestoreAccessToken {
   context: IContext;
+}
+
+export interface IAuthSocialLogin {
+  req: Request & IOauthUser;
+  res: Response;
+  provider: 'kakao' | 'naver' | 'google';
 }

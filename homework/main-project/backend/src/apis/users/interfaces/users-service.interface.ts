@@ -5,6 +5,16 @@ export class IUserServiceCreate {
   createUserInput: CreateUserInput;
 }
 
+export class IUserServiceCreateOauthUser {
+  id: string;
+  name: string;
+  provider: 'kakao' | 'naver' | 'google';
+}
+
+export class IUserServiceFindOneByProviderId {
+  id: string;
+}
+
 export class IUserServiceFindOneByEmail {
   email: string;
 }

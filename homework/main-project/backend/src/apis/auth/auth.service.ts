@@ -7,6 +7,7 @@ import {
   IAuthServiceLogin,
   IAuthServiceRestoreAccessToken,
   IAuthServiceSetRefreshToken,
+  IAuthSocialLogin,
 } from './interfaces/auth-service.interface';
 
 @Injectable()
@@ -24,7 +25,7 @@ export class AuthService {
 
     if (!isAuth) throw new UnprocessableEntityException('암호가 틀렸습니다.');
 
-    this.setRefreshToken({ user, context });
+    this.setRefreshToken({ user, res: context.res });
 
     return this.getAccessToken({ user });
   }
@@ -36,19 +37,26 @@ export class AuthService {
     );
   }
 
-  setRefreshToken({ user, context }: IAuthServiceSetRefreshToken): void {
+  setRefreshToken({ user, res }: IAuthServiceSetRefreshToken): void {
     const refreshToken = this.jwtService.sign(
       { sub: user.id },
       { secret: process.env.JWT_REFRESH_KEY, expiresIn: '2w' },
     );
 
-    context.res.setHeader(
-      'Set-Cookie',
-      `refreshToken=${refreshToken}; path=/;`,
-    );
+    res.setHeader('Set-Cookie', `refreshToken=${refreshToken}; path=/;`);
   }
 
   restoreAccessToken({ context }: IAuthServiceRestoreAccessToken): string {
     return this.getAccessToken({ user: context.req.user });
+  }
+
+  async socialLogin({ req, res, provider }: IAuthSocialLogin) {
+    let user = await this.usersService.findOneByProviderId({
+      id: req.user.id,
+    });
+    if (!user)
+      user = await this.usersService.createOauthUser({ ...req.user, provider });
+    this.setRefreshToken({ user, res });
+    res.redirect('http://localhost:5500/frontend/login');
   }
 }

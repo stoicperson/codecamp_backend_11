@@ -4,9 +4,11 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import {
   IUserServiceCreate,
+  IUserServiceCreateOauthUser,
   IUserServiceDelete,
   IUserServiceFindOne,
   IUserServiceFindOneByEmail,
+  IUserServiceFindOneByProviderId,
   IUserServiceGetHasedPwd,
   IUserServiceUpdate,
   IUserServiceUpdatePwd,
@@ -26,6 +28,14 @@ export class UsersService {
 
   findOne({ userId }: IUserServiceFindOne): Promise<User> {
     return this.usersRepository.findOne({ where: { id: userId } });
+  }
+
+  findOneByProviderId({ id }: IUserServiceFindOneByProviderId) {
+    return this.usersRepository.findOne({
+      where: {
+        providerId: id,
+      },
+    });
   }
 
   findOneByEmail({ email }: IUserServiceFindOneByEmail) {
@@ -48,6 +58,23 @@ export class UsersService {
     return this.usersRepository.save({
       ...createUserInput,
       pwd: hashedPwd,
+    });
+  }
+
+  async createOauthUser({
+    id,
+    name,
+    provider,
+  }: IUserServiceCreateOauthUser): Promise<User> {
+    const user = await this.findOneByProviderId({ id });
+    if (user) throw new ConflictException('이미 등록된 아아디입니다.');
+
+    const hashedPwd = await this.getHasedPwd({ pwd: String(id) });
+    return this.usersRepository.save({
+      providerId: id,
+      koName: name,
+      pwd: hashedPwd,
+      provider,
     });
   }
 
