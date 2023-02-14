@@ -1,5 +1,6 @@
 import { CreateUserInput } from '../dto/create-user.input';
 import { UpdateUserInput } from '../dto/update-user.input';
+import { PROVIDER_ENUM } from '../entities/user.entity';
 
 export class IUserServiceCreate {
   createUserInput: CreateUserInput;
@@ -8,7 +9,7 @@ export class IUserServiceCreate {
 export class IUserServiceCreateOauthUser {
   id: string;
   name: string;
-  provider: 'kakao' | 'naver' | 'google';
+  provider: PROVIDER_ENUM;
 }
 
 export class IUserServiceFindOneByProviderId {

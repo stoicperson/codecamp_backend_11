@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User } from 'src/apis/users/entities/user.entity';
+import { PROVIDER_ENUM, User } from 'src/apis/users/entities/user.entity';
 import { IAuthUser, IContext } from 'src/commons/interfaces/context';
 import { IOauthUser } from 'src/commons/interfaces/oauthUser';
 
@@ -25,5 +25,5 @@ export interface IAuthServiceRestoreAccessToken {
 export interface IAuthSocialLogin {
   req: Request & IOauthUser;
   res: Response;
-  provider: string;
+  provider: PROVIDER_ENUM;
 }

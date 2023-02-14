@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +7,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+export enum PROVIDER_ENUM {
+  GOOGLE = 'google',
+  KAKAO = 'kakao',
+  NAVER = 'naver',
+  CREDENTIALS = 'credentials',
+}
+
+registerEnumType(PROVIDER_ENUM, {
+  name: 'PROVIDER_ENUM',
+});
 
 @ObjectType()
 @Entity()
@@ -55,8 +66,8 @@ export class User {
   @Field(() => Int)
   age: number;
 
-  @Column({ default: 'credentials' })
-  @Field(() => String)
+  @Column({ type: 'enum', enum: PROVIDER_ENUM, default: 'credentials' })
+  @Field(() => PROVIDER_ENUM)
   provider: string;
 
   @CreateDateColumn()

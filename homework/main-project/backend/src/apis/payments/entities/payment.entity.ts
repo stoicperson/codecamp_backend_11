@@ -2,6 +2,7 @@ import { Ticket } from '../../tickets/entities/ticket.entity';
 import { User } from '../../users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -9,7 +10,16 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Passenger } from 'src/apis/passengers/entities/passenger.entity';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+
+export enum PAYMENT_STATUS_ENUM {
+  PAYMENT = 'PAYMENT',
+  CANCEL = 'CANCEL',
+}
+
+registerEnumType(PAYMENT_STATUS_ENUM, {
+  name: 'POINT_TRANSACTIONS_STATUS_ENUM',
+});
 
 @ObjectType()
 @Entity()
@@ -18,15 +28,19 @@ export class Payment {
   @Field(() => String)
   id: string;
 
-  @Column({ type: 'char', length: 14 })
+  @Column()
   @Field(() => String)
-  transNum: string;
+  impUid: string;
 
-  @Column({ type: 'tinyint' })
-  @Field(() => String)
-  transStatus: number;
+  @Field(() => PAYMENT_STATUS_ENUM)
+  @Column({ type: 'enum', enum: PAYMENT_STATUS_ENUM })
+  status: PAYMENT_STATUS_ENUM;
 
-  @Column({ type: 'timestamp' })
+  @Field(() => Int)
+  @Column()
+  amount: number;
+
+  @CreateDateColumn()
   @Field(() => Date)
   createdAt: Date;
 
@@ -40,6 +54,6 @@ export class Payment {
 
   @JoinColumn()
   @OneToOne(() => Passenger)
-  @Field(() => Passenger)
+  @Field(() => Passenger, { nullable: true })
   passenger: Passenger;
 }
