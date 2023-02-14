@@ -1,5 +1,4 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { IOauthUser } from 'src/commons/interfaces/oauthUser';
 import { AuthService } from './auth.service';
