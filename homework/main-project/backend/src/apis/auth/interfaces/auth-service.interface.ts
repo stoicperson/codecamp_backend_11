@@ -25,5 +25,5 @@ export interface IAuthServiceRestoreAccessToken {
 export interface IAuthSocialLogin {
   req: Request & IOauthUser;
   res: Response;
-  provider: 'kakao' | 'naver' | 'google';
+  provider: string;
 }
