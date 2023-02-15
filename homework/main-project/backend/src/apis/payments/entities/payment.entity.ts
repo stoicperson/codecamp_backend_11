@@ -13,8 +13,8 @@ import { Passenger } from 'src/apis/passengers/entities/passenger.entity';
 import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum PAYMENT_STATUS_ENUM {
-  PAYMENT = 'PAYMENT',
-  CANCEL = 'CANCEL',
+  PAYMENT = 'payment',
+  CANCEL = 'cancelled',
 }
 
 registerEnumType(PAYMENT_STATUS_ENUM, {

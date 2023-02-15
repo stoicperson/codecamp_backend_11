@@ -45,7 +45,7 @@
                 {
                   query: `
                     mutation {
-                      createPayment(impUid: "1", ticketId: "11", amount: 100, passengersInput: {
+                      createPayment(impUid: "${rsp.imp_uid}", ticketId: "11", amount: ${rsp.paid_amount}, passengersInput: {
                         koName: ""
                         enFirstName: ""
                         enLastName: ""
@@ -61,8 +61,7 @@
                 },
                 {
                   headers: {
-                    Authorization:
-                      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyYjBmMDg0OC1lZmEwLTRmZTEtYTQ4YS04YzExOWQ0NzM0MmIiLCJpYXQiOjE2NzYzNzQ3NzMsImV4cCI6MTY3NjM3ODM3M30.lH7Xl0na5Kd3tvaIf9Fzm5Pi2tDo91g2ES9n4M7O-PM",
+                    Authorization: `Bearer ${token.value}`,
                   },
                 }
               );
@@ -75,9 +74,29 @@
         );
       }
     </script>
+    <script>
+      async function getToken() {
+        const data = await axios.post("http://localhost:3000/graphql", {
+          query: `
+            mutation {
+              login(email: "${email.value}" password: "${password.value}")
+            }
+            `,
+        });
+        token.value = data.data.data.login;
+      }
+    </script>
   </head>
   <body>
     결제할 금액: <input type="text" id="amount" />
     <button onclick="mypayment()">결제하기</button>
+    <br />
+    <input type="text" placeholder="email" id="email" /><input
+      type="text"
+      placeholder="password"
+      id="password"
+    />
+    <button onclick="getToken()">토큰 가져오기</button>
+    Access 토큰: <input type="text" id="token" readonly />
   </body>
 </html>

@@ -27,4 +27,13 @@ export class PaymentsResolver {
       user: context.req.user,
     });
   }
+
+  @UseGuards(GqlAuthGuard('access'))
+  @Mutation(() => Payment)
+  cancelPayment(
+    @Args('impUid') impUid: string,
+    @Args({ name: 'refundAmount', type: () => Int }) refundAmount: number,
+  ) {
+    return this.paymentsService.cancel({ impUid, refundAmount });
+  }
 }
