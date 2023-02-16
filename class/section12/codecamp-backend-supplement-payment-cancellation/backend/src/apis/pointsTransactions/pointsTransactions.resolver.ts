@@ -19,14 +19,19 @@ export class PointsTransactionsResolver {
     @Context() context: IContext,
   ): Promise<PointTransaction> {
     const user = context.req.user;
-    return this.pointsTransactionsService.create({ impUid, amount, user });
+    return this.pointsTransactionsService.createForPayment({
+      impUid,
+      amount,
+      user,
+    });
   }
 
   @Mutation(() => PointTransaction)
   cancelPointTransacion(
     @Args('impUid') impUid: string, //
-    
+    @Context() context: IContext,
   ) {
-
+    const user = context.req.user;
+    this.pointsTransactionsService.cancel({ impUid, user });
   }
 }
