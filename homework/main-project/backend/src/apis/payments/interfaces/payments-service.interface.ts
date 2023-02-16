@@ -27,3 +27,9 @@ export interface IPaymentsVerifyRefund {
 export interface IPaymentsVerifyCancel {
   status: PAYMENT_STATUS_ENUM;
 }
+
+export interface IPaymentsServiceCancel {
+  impUid: string;
+  user: IAuthUser['user'];
+  refundAmount: number;
+}

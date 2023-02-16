@@ -1,5 +1,8 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { IIamportServiceGetPaymentData } from './interfaces/iamport-service.interface';
+import {
+  IIamportServiceGetPaymentData,
+  IIamportServiceRefund,
+} from './interfaces/iamport-service.interface';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { PaymentData } from 'src/commons/interfaces/payment-data';
@@ -47,7 +50,11 @@ export class IamportService {
     }
   }
 
-  async refund({ impUid, totalAmount, refundAmount }) {
+  async refund({
+    impUid,
+    totalAmount,
+    refundAmount,
+  }: IIamportServiceRefund): Promise<PaymentData> {
     try {
       const access_token = await this.getAccessToken();
 

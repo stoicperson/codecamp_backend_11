@@ -33,7 +33,9 @@ export class PaymentsResolver {
   cancelPayment(
     @Args('impUid') impUid: string,
     @Args({ name: 'refundAmount', type: () => Int }) refundAmount: number,
-  ) {
-    return this.paymentsService.cancel({ impUid, refundAmount });
+    @Context() context: IContext,
+  ): Promise<Payment> {
+    const user = context.req.user;
+    return this.paymentsService.cancel({ impUid, user, refundAmount });
   }
 }

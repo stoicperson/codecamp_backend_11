@@ -4,11 +4,12 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { IamportService } from '../iamport/iamport.service';
-import { PassengersService } from '../passengers/passengers.service';
+import { Passenger } from '../passengers/entities/passenger.entity';
 import { Payment, PAYMENT_STATUS_ENUM } from './entities/payment.entity';
 import {
+  IPaymentsServiceCancel,
   IPaymentsServiceCreate,
   IPaymentsVerifyAmount,
   IPaymentsVerifyCancel,
@@ -22,9 +23,9 @@ export class PaymentsService {
     @InjectRepository(Payment)
     private readonly paymentsRepository: Repository<Payment>,
 
-    private readonly passengersService: PassengersService,
-
     private readonly iamportService: IamportService,
+
+    private readonly dataSource: DataSource,
   ) {}
   async create({
     impUid,
@@ -33,63 +34,95 @@ export class PaymentsService {
     passengerInput,
     user: _user,
   }: IPaymentsServiceCreate): Promise<Payment> {
-    const passenger = await this.passengersService.create({ passengerInput });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction('SERIALIZABLE');
+    try {
+      const passenger = await queryRunner.manager.save(Passenger, {
+        ...passengerInput,
+      });
 
-    const payment = this.paymentsRepository.create({
-      impUid,
-      ticket: {
-        id: ticketId,
-      },
-      amount,
-      passenger: {
-        ...passenger,
-      },
-      status: PAYMENT_STATUS_ENUM.PAYMENT,
-      user: _user,
-    });
+      const payment = this.paymentsRepository.create({
+        impUid,
+        ticket: {
+          id: ticketId,
+        },
+        amount,
+        passenger: {
+          ...passenger,
+        },
+        status: PAYMENT_STATUS_ENUM.PAYMENT,
+        user: _user,
+      });
 
-    const paymentData = await this.iamportService.getPaymentData({ impUid });
+      const paymentData = await this.iamportService.getPaymentData({ impUid });
 
-    await this.verifyDuplication({ impUid });
+      await this.verifyDuplication({ impUid });
 
-    await this.verifyAmount({ amount, imp_payment: paymentData.amount });
+      await this.verifyAmount({ amount, imp_payment: paymentData.amount });
 
-    await this.paymentsRepository.save(payment);
-
-    return payment;
+      await queryRunner.manager.save(payment);
+      await queryRunner.commitTransaction();
+      return payment;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      console.log(e);
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  async cancel({ impUid, refundAmount }) {
-    const totalAmount = await this.paymentsRepository.sum('amount', {
-      impUid,
-    });
-
-    console.log(totalAmount);
-
-    await this.verfiyRefund({ totalAmount, refundAmount });
-
-    const response = await this.iamportService.refund({
-      impUid,
-      totalAmount,
-      refundAmount,
-    });
-
-    await this.verifyCancel({ status: response.status });
-
-    const payment = await this.paymentsRepository.findOne({
-      where: {
+  async cancel({
+    impUid,
+    user,
+    refundAmount,
+  }: IPaymentsServiceCancel): Promise<Payment> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction('SERIALIZABLE');
+    try {
+      const totalAmount = await queryRunner.manager.sum(Payment, 'amount', {
         impUid,
-      },
-      relations: ['user', 'ticket'], // 실제 서비스에서 결제 정보 외 나머지 정보를 저장하나요?
-    });
+        user: { id: user.id },
+      });
 
-    const { id, ...restPayment } = payment;
+      console.log(totalAmount);
 
-    return this.paymentsRepository.save({
-      ...restPayment,
-      amount: -refundAmount,
-      status: PAYMENT_STATUS_ENUM.CANCEL,
-    });
+      await this.verfiyRefund({ totalAmount, refundAmount });
+
+      const response = await this.iamportService.refund({
+        impUid,
+        totalAmount,
+        refundAmount,
+      });
+
+      await this.verifyCancel({ status: response.status });
+
+      const payment = await queryRunner.manager.findOne(Payment, {
+        where: {
+          impUid,
+        },
+        lock: { mode: 'pessimistic_write' },
+        relations: ['user', 'ticket'],
+      });
+
+      const { id, ...restPayment } = payment;
+
+      const result = await queryRunner.manager.save(Payment, {
+        ...restPayment,
+        amount: -refundAmount,
+        status: PAYMENT_STATUS_ENUM.CANCEL,
+      });
+
+      await queryRunner.commitTransaction();
+
+      return result;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      console.log(e);
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async verifyAmount({
@@ -113,7 +146,10 @@ export class PaymentsService {
     if (payment) throw new ConflictException('이미 처리된 결제 정보입니다.');
   }
 
-  async verfiyRefund({ totalAmount, refundAmount }: IPaymentsVerifyRefund) {
+  async verfiyRefund({
+    totalAmount,
+    refundAmount,
+  }: IPaymentsVerifyRefund): Promise<void> {
     if (typeof totalAmount === 'object') {
       throw new UnprocessableEntityException('존재하지 않는 결제정보입니다.');
     }
@@ -127,7 +163,7 @@ export class PaymentsService {
     }
   }
 
-  async verifyCancel({ status }: IPaymentsVerifyCancel) {
+  async verifyCancel({ status }: IPaymentsVerifyCancel): Promise<void> {
     if (status !== 'cancelled') {
       throw new UnprocessableEntityException(
         '결제 취소 처리가 되지 않았습니다.',

@@ -35,6 +35,7 @@ import { UsersModule } from './apis/users/users.module';
       entities: [__dirname + '/apis/**/*.entity.*'],
       synchronize: true,
       timezone: 'local',
+      logging: true,
     }),
   ],
   controllers: [],
