@@ -7,3 +7,5 @@ dist
 mini-project
 
 .vscode/*
+
+gcp-file-storage.json
