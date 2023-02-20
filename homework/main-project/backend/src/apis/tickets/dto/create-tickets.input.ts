@@ -18,9 +18,6 @@ export class CreateTicketInput {
   @Field(() => String)
   ticketNum: string;
 
-  @Field(() => String, { nullable: true })
-  ticketImage: string;
-
   @Field(() => String)
   travelClass: string;
 
@@ -31,6 +28,9 @@ export class CreateTicketInput {
   @Min(0)
   @Field(() => Int)
   price: number;
+
+  @Field(() => [String], { nullable: true })
+  imageUrls: string[];
 
   @Field(() => String)
   departingAirportId: string;

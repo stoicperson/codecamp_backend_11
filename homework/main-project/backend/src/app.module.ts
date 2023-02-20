@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AirlinesModule } from './apis/airlines/airlines.module';
 import { AirPortsModule } from './apis/airports/airports.module';
 import { AuthModule } from './apis/auth/auth.module';
+import { FilesModule } from './apis/files/files.module';
 import { PaymentModule } from './apis/payments/payments.module';
 import { TicketsModule } from './apis/tickets/tickets.module';
 import { UsersModule } from './apis/users/users.module';
@@ -13,9 +14,10 @@ import { UsersModule } from './apis/users/users.module';
 @Module({
   imports: [
     AuthModule,
-    TicketsModule,
     AirlinesModule,
     AirPortsModule,
+    FilesModule,
+    TicketsModule,
     PaymentModule,
     UsersModule,
     ConfigModule.forRoot(),
@@ -35,7 +37,7 @@ import { UsersModule } from './apis/users/users.module';
       entities: [__dirname + '/apis/**/*.entity.*'],
       synchronize: true,
       timezone: 'local',
-      logging: true,
+      // logging: true,
     }),
   ],
   controllers: [],

@@ -7,8 +7,10 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Image } from 'src/apis/images/entities/image.entity';
 
 @Entity()
 @ObjectType()
@@ -37,10 +39,6 @@ export class Ticket {
   @Field(() => String)
   ticketNum: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  @Field(() => String)
-  ticketImage: string;
-
   @CreateDateColumn()
   @Field(() => Date)
   createdAt: Date;
@@ -59,6 +57,10 @@ export class Ticket {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => Image, (image) => image.ticket)
+  @Field(() => [Image])
+  images: Image[];
 
   @ManyToOne(() => Airport)
   @Field(() => Airport)

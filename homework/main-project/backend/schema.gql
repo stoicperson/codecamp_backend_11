@@ -18,39 +18,31 @@ type Airport {
 
 type User {
   id: String!
+  providerId: String
   koName: String!
   enFirstName: String!
   enLastName: String!
   birthDate: String!
   email: String!
-  mobile: String
+  mobile: String!
   gender: String!
   age: Int!
+  provider: PROVIDER_ENUM!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+enum PROVIDER_ENUM {
+  GOOGLE
+  KAKAO
+  NAVER
+  CREDENTIALS
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type Ticket {
-  id: String!
-  arrivingTime: DateTime!
-  departingTime: DateTime!
-  arrivingGate: String!
-  departingGate: String!
-  ticketNum: String!
-  ticketImage: String!
-  createdAt: DateTime!
-  travelClass: String!
-  limitCount: Int!
-  price: Int!
-  arrivingAirport: Airport!
-  departingAirport: Airport!
-  airline: Airline!
-}
 
 type Passenger {
   id: String!
@@ -61,6 +53,45 @@ type Passenger {
   email: String!
   mobile: String!
   gender: String!
+}
+
+type Image {
+  id: String!
+  url: String!
+  ticket: Ticket!
+}
+
+type Ticket {
+  id: String!
+  arrivingTime: DateTime!
+  departingTime: DateTime!
+  arrivingGate: String!
+  departingGate: String!
+  ticketNum: String!
+  createdAt: DateTime!
+  travelClass: String!
+  limitCount: Int!
+  price: Int!
+  images: [Image!]!
+  arrivingAirport: Airport!
+  departingAirport: Airport!
+  airline: Airline!
+}
+
+type Payment {
+  id: String!
+  impUid: String!
+  status: POINT_TRANSACTIONS_STATUS_ENUM!
+  amount: Int!
+  createdAt: DateTime!
+  ticket: Ticket!
+  user: User!
+  passenger: Passenger
+}
+
+enum POINT_TRANSACTIONS_STATUS_ENUM {
+  PAYMENT
+  CANCEL
 }
 
 type Query {
@@ -80,12 +111,15 @@ type Mutation {
   updateUserPwd(password: String!): User!
   deleteUser(userId: String!): Boolean!
   deleteLoginUser: Boolean!
+  createAirline(airlineInput: AirlineInput!): Airline!
+  createAirport(airportInput: AirportInput!): Airport!
+  uploadFile(files: [Upload!]!): [String!]!
   createTicket(createTicketInput: CreateTicketInput!): Ticket!
   updateTicket(ticketId: String!, updateTicketInput: UpdateTicketInput!): Ticket!
   deleteTicket(ticketId: String!): Boolean!
   restoreTicket(ticketId: String!): Boolean!
-  createAirline(airlineInput: AirlineInput!): Airline!
-  createAirport(airportInput: AirportInput!): Airport!
+  createPayment(impUid: String!, ticketId: String!, amount: Int!, passengersInput: PassengerInput!): Payment!
+  cancelPayment(impUid: String!, refundAmount: Int!): Payment!
 }
 
 input CreateUserInput {
@@ -94,7 +128,7 @@ input CreateUserInput {
   enLastName: String!
   birthDate: String!
   email: String!
-  mobile: String
+  mobile: String!
   gender: String!
   age: Int!
   pwd: String!
@@ -102,6 +136,7 @@ input CreateUserInput {
 
 input UpdateUserInput {
   id: String
+  providerId: String
   koName: String
   enFirstName: String
   enLastName: String
@@ -110,39 +145,10 @@ input UpdateUserInput {
   mobile: String
   gender: String
   age: Int
+  provider: PROVIDER_ENUM
   createdAt: DateTime
   updatedAt: DateTime
   pwd: String
-}
-
-input CreateTicketInput {
-  arrivingTime: DateTime!
-  departingTime: DateTime!
-  arrivingGate: String!
-  departingGate: String!
-  ticketNum: String!
-  ticketImage: String
-  travelClass: String!
-  limitCount: Int!
-  price: Int!
-  departingAirportId: String!
-  arrivingAirportId: String!
-  airlineId: String!
-}
-
-input UpdateTicketInput {
-  arrivingTime: DateTime
-  departingTime: DateTime
-  arrivingGate: String
-  departingGate: String
-  ticketNum: String
-  ticketImage: String
-  travelClass: String
-  limitCount: Int
-  price: Int
-  departingAirportId: String
-  arrivingAirportId: String
-  airlineId: String
 }
 
 input AirlineInput {
@@ -155,4 +161,47 @@ input AirportInput {
   code: String!
   country: String!
   city: String!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input CreateTicketInput {
+  arrivingTime: DateTime!
+  departingTime: DateTime!
+  arrivingGate: String!
+  departingGate: String!
+  ticketNum: String!
+  travelClass: String!
+  limitCount: Int!
+  price: Int!
+  imageUrls: [String!]
+  departingAirportId: String!
+  arrivingAirportId: String!
+  airlineId: String!
+}
+
+input UpdateTicketInput {
+  arrivingTime: DateTime
+  departingTime: DateTime
+  arrivingGate: String
+  departingGate: String
+  ticketNum: String
+  travelClass: String
+  limitCount: Int
+  price: Int
+  imageUrls: [String!]
+  departingAirportId: String
+  arrivingAirportId: String
+  airlineId: String
+}
+
+input PassengerInput {
+  koName: String
+  enFirstName: String
+  enLastName: String
+  birthDate: String
+  email: String
+  mobile: String
+  gender: String
 }
