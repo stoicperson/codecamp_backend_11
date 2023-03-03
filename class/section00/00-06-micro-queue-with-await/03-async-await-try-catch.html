@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>이벤트루프</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      function onClickLoop() {
+        function aaa() {
+          try {
+            axios.get("https://qqqq.com");
+            console.log("철수");
+          } catch {
+            console.log("에러가 발생하였습니다.");
+          }
+        }
+
+        async function bbb() {
+          try {
+            await axios.get("https://qqqq.com");
+            console.log("철수");
+          } catch (err) {
+            console.log("에러가 발생하였습니다.");
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <button onclick="onClickLoop()">시작하기</button>
+  </body>
+</html>
