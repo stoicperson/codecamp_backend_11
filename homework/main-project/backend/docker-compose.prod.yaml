@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  nestjs:
+    image: asia.gcr.io/backend-379210/main-project:1.2
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env
+
+  # mysql:
+  #   image: mysql:latest
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 1234
+  #     MYSQL_DATABASE: myapp
+  #   ports:
+  #     - 3306:3306
+  # myredis:
+  #   image: redis:latest
+  #   ports:
+  #     - 6379:6379
